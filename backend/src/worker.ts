@@ -3,10 +3,10 @@ import nodemailer from 'nodemailer';
 import { prisma } from './index';
 import { redis, connection } from './redis';
 
-const emailQueue = new Queue('email-queue', { connection });
+export const emailQueue = new Queue("emails", { connection });
 
-const worker = new Worker(
-  'email-queue',
+export const emailWorker = new Worker(
+  "emails",
   async (job: Job) => {
     const { emailId } = job.data;
 
@@ -101,11 +101,11 @@ const worker = new Worker(
   }
 );
 
-worker.on('completed', (job) => {
+emailWorker.on('completed', (job) => {
   console.log(`Job ${job.id} completed`);
 });
 
-worker.on('failed', (job, err) => {
+emailWorker.on('failed', (job, err) => {
   console.log(`Job ${job?.id} failed:`, err.message);
 });
 

@@ -18,7 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
-const emailQueue = new Queue('email-queue', { connection });
+const emailQueue = new Queue('emails', { connection });
 
 router.post('/schedule', upload.single('csvFile'), async (req, res) => {
   try {
