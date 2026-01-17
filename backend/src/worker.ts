@@ -104,7 +104,11 @@ const worker = new Worker(
   },
   {
     connection,
-    concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5')
+    concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5'),
+    limiter: {
+      max: 1,
+      duration: parseInt(process.env.EMAIL_DELAY_MS || '2000')
+    }
   }
 );
 

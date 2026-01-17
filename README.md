@@ -1,176 +1,228 @@
 # ReachInbox Email Job Scheduler
 
-A production-grade email scheduler service with a dashboard for scheduling and managing email campaigns.
+A robust, production-ready email scheduling platform built with modern web technologies. Schedule bulk emails with configurable delays, rate limiting, and real-time monitoring through an intuitive dashboard.
 
-## Features
+## 🚀 Features
 
-### Backend
-- **Email Scheduling**: Accept email send requests via APIs and schedule them using BullMQ delayed jobs
-- **Persistence**: Survives server restarts without losing jobs
-- **Rate Limiting**: Configurable emails per hour per sender with Redis-backed counters
-- **Concurrency**: Configurable worker concurrency with delays between sends
-- **SMTP**: Uses Ethereal Email for testing
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: Google OAuth with Passport.js
+### Backend Capabilities
+- **Advanced Email Scheduling**: Queue emails with precise timing using BullMQ delayed jobs
+- **Fault-Tolerant Persistence**: Survives server restarts with Redis-backed job storage
+- **Intelligent Rate Limiting**: Per-sender hourly limits with automatic rescheduling
+- **Configurable Concurrency**: Adjustable worker threads with customizable delays
+- **Secure Authentication**: Google OAuth 2.0 integration with session management
+- **Bulk Email Support**: CSV upload for mass email campaigns
+- **Database Integration**: PostgreSQL with Prisma ORM for reliable data storage
+- **SMTP Integration**: Ethereal Email for testing (easily configurable for production)
 
-### Frontend
-- **Dashboard**: View scheduled and sent emails
-- **Compose**: Schedule new emails with CSV upload for leads
-- **Authentication**: Google OAuth login
-- **UI**: Built with Next.js, Tailwind CSS, and TypeScript
+### Frontend Dashboard
+- **Real-Time Monitoring**: View scheduled, sent, and failed emails
+- **Bulk Scheduling**: Upload CSV files with recipient data
+- **Flexible Configuration**: Set custom delays, hourly limits, and start times
+- **Responsive Design**: Modern UI built with Next.js and Tailwind CSS
+- **Secure Access**: OAuth-protected dashboard
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **Backend**: TypeScript, Express.js, BullMQ, Redis, PostgreSQL, Prisma
-- **Frontend**: Next.js, React, TypeScript, Tailwind CSS
-- **Infra**: Docker Compose for Redis and PostgreSQL
+- **Backend**: Node.js, TypeScript, Express.js, BullMQ, Redis, PostgreSQL, Prisma
+- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
+- **Infrastructure**: Docker Compose (development), Vercel (frontend), Render (backend)
+- **Authentication**: Passport.js with Google OAuth 2.0
+- **Email**: Nodemailer with SMTP transport
 
-## Setup
+## 📋 Prerequisites
 
-### Prerequisites
-- Node.js 18+
-- Docker and Docker Compose
-- Google OAuth credentials
+- Node.js 18 or higher
+- Docker and Docker Compose (for local development)
+- Google OAuth 2.0 credentials
+- GitHub account for deployment
 
-### Environment Variables
+## ⚙️ Local Development Setup
 
-Create `.env` in the backend directory with:
+### 1. Clone and Install Dependencies
+
+```bash
+git clone <your-repo-url>
+cd reachinbox
+npm install
+cd backend && npm install
+cd ../frontend && npm install
+```
+
+### 2. Environment Configuration
+
+Create `.env` file in the `backend` directory:
 
 ```env
+# Database
 DATABASE_URL=postgresql://postgres:password@localhost:5432/reachinbox
+
+# Redis
 REDIS_URL=redis://localhost:6379
+
+# Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-SESSION_SECRET=your_session_secret
+
+# Session Security
+SESSION_SECRET=your_secure_random_session_secret
+
+# Email Configuration (Ethereal for testing)
 ETHEREAL_HOST=smtp.ethereal.email
 ETHEREAL_PORT=587
-ETHEREAL_USER=your_ethereal_user
-ETHEREAL_PASS=your_ethereal_pass
+ETHEREAL_USER=your_ethereal_username
+ETHEREAL_PASS=your_ethereal_password
+
+# Rate Limiting & Performance
 MAX_EMAILS_PER_HOUR_PER_SENDER=200
 EMAIL_DELAY_MS=2000
 WORKER_CONCURRENCY=5
 ```
 
-### Running the Application
+### 3. Start Infrastructure Services
 
-1. Start Docker services:
-   ```bash
-   cd docker
-   docker-compose up -d
-   ```
+```bash
+cd docker
+docker-compose up -d
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   cd backend && npm install
-   cd ../frontend && npm install
-   ```
+### 4. Database Setup
 
-3. Run Prisma migrations:
-   ```bash
-   cd backend
-   npx prisma migrate dev --name init
-   npx prisma generate
-   ```
+```bash
+cd backend
+npx prisma migrate dev --name init
+npx prisma generate
+```
 
-4. Start the backend:
-   ```bash
-   cd backend
-   npm run dev
-   ```
+### 5. Launch Application
 
-5. Start the frontend:
-   ```bash
-   cd frontend
-   npm run dev
-   ```
+**Backend:**
+```bash
+cd backend
+npm run dev
+```
 
-6. Open http://localhost:3000 for the frontend, backend runs on http://localhost:5000
+**Frontend:**
+```bash
+cd frontend
+npm run dev
+```
 
-## Architecture
+Visit `http://localhost:3000` to access the application.
 
-### Scheduling
-- Emails are scheduled using BullMQ delayed jobs
-- Jobs are stored in Redis with delay times
-- Worker processes jobs, checking rate limits before sending
+## 🏗 Architecture Overview
 
-### Persistence
-- Job state is persisted in Redis
-- Email records stored in PostgreSQL
-- On restart, BullMQ resumes pending jobs
+### Email Scheduling Pipeline
+1. **API Reception**: Emails received via REST API with scheduling parameters
+2. **Queue Management**: Jobs queued in Redis with BullMQ for persistence
+3. **Worker Processing**: Background workers process jobs with rate limiting
+4. **SMTP Delivery**: Emails sent via configured SMTP provider
+5. **Status Tracking**: Real-time updates in database and UI
 
-### Rate Limiting
-- Per-sender hourly limits enforced using Redis counters
-- Counters reset hourly
-- Exceeded jobs are rescheduled to next hour
+### Key Components
 
-### Concurrency
-- Worker concurrency set to 5
-- 2-second delay between sends using BullMQ limiter
+- **Rate Limiting**: Redis counters enforce per-sender hourly limits
+- **Job Persistence**: BullMQ ensures no emails are lost on restarts
+- **Concurrency Control**: Configurable worker pools with delays
+- **Error Handling**: Automatic retries and failure tracking
 
-## API Endpoints
+## 📡 API Reference
 
-### Auth
-- `GET /auth/google` - Initiate Google login
-- `GET /auth/google/callback` - OAuth callback
-- `GET /auth/user` - Get current user
-- `POST /auth/logout` - Logout
+### Authentication Endpoints
+- `GET /auth/google` - Initiate OAuth login
+- `GET /auth/google/callback` - OAuth callback handler
+- `GET /auth/user` - Retrieve current user info
+- `POST /auth/logout` - Destroy user session
 
-### Emails
-- `POST /emails/schedule` - Schedule emails
-- `GET /emails/scheduled` - Get scheduled emails
-- `GET /emails/sent` - Get sent emails
-- `GET /emails/senders` - Get senders
-- `POST /emails/senders` - Create sender
+### Email Management Endpoints
+- `POST /emails/schedule` - Schedule new emails (supports CSV upload)
+- `GET /emails/scheduled` - List pending emails
+- `GET /emails/sent` - List delivered emails
+- `GET /emails/senders` - List configured senders
+- `POST /emails/senders` - Create new sender profile
 
-## Testing
+## 🧪 Testing Guide
 
-### Authentication Flow
-1. Visit http://localhost:3000
+### Authentication Testing
+1. Navigate to `http://localhost:3000`
 2. Click "Sign in with Google"
-3. Redirect to dashboard
+3. Complete OAuth flow
+4. Verify dashboard access
 
-### Email Scheduling
-1. Go to dashboard
+### Email Scheduling Testing
+1. Access the dashboard
 2. Click "Compose New Email"
-3. Fill subject, body, upload CSV
-4. Set start time, delay, hourly limit
-5. Click Schedule
+3. Upload CSV file with recipient data
+4. Configure scheduling parameters
+5. Submit and monitor queue
 
-### Rate Limiting
-- Schedule multiple emails quickly
-- Check that sends are delayed and limited per hour
+### Rate Limiting Verification
+- Schedule emails exceeding hourly limit
+- Observe automatic rescheduling to next hour
+- Check Redis counters and logs
 
-### Restart Scenario
-1. Schedule future emails
-2. Stop backend
-3. Start backend
-4. Verify emails still send at correct times
+### Resilience Testing
+- Schedule future emails
+- Restart backend service
+- Confirm jobs resume automatically
 
-## Deployment
+## 🚀 Production Deployment
 
-### Frontend (Vercel)
+### Frontend Deployment (Vercel)
 
-1. Push code to GitHub
-2. Connect Vercel to your repo
-3. Set environment variable:
+1. **Repository Setup**: Push code to GitHub
+2. **Vercel Connection**: Link repository in Vercel dashboard
+3. **Build Configuration**:
+   - Build Command: `npm run build`
+   - Output Directory: `.next`
+4. **Environment Variables**:
    ```
-   NEXT_PUBLIC_API_URL=https://your-render-backend-url.onrender.com
+   NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
    ```
-4. Deploy
+5. **Deploy**: Trigger automatic deployment
 
-### Backend (Render)
+### Backend Deployment (Render)
 
-1. Create a new Web Service on Render
-2. Connect your GitHub repo
-3. Set build command: `npm run build`
-4. Set start command: `npm start`
-5. Add environment variables from `.env.example`
-6. For database, use Render's PostgreSQL or external Redis
-7. Deploy
+1. **Service Creation**: New Web Service in Render dashboard
+2. **Repository Connection**: Link GitHub repository
+3. **Build Settings**:
+   - Build Command: `npm run build`
+   - Start Command: `npm start`
+4. **Environment Variables**: Configure from `.env.example`
+5. **Database & Redis**: Use Render managed services or external providers
 
-### Database and Redis
+### Infrastructure Setup
 
-- Use Render's managed PostgreSQL and Redis services
-- Update `DATABASE_URL` and `REDIS_URL` in environment variables
+- **PostgreSQL**: Render managed database
+- **Redis**: Render managed Redis or cloud provider
+- **Domain Configuration**: Update OAuth redirect URIs
+- **SSL**: Automatic HTTPS provisioning
+
+### Post-Deployment Checklist
+
+- [ ] Update Google OAuth redirect URIs
+- [ ] Execute Prisma migrations: `npx prisma migrate deploy`
+- [ ] Test authentication flow
+- [ ] Verify email scheduling and delivery
+- [ ] Monitor application logs
+- [ ] Configure monitoring and alerts
+
+## 📊 Monitoring & Maintenance
+
+- **Logs**: Monitor Render/Vercel logs for errors
+- **Database**: Regular backups and performance monitoring
+- **Redis**: Monitor queue lengths and memory usage
+- **Rate Limits**: Adjust based on usage patterns
+- **Updates**: Keep dependencies updated for security
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Open Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
