@@ -1,0 +1,2 @@
+- [x] Update Reachinbox/backend/src/routes/emails.ts to use shared connection object
+- [x] Commit changes to GitHub
