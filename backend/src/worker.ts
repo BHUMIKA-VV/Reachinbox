@@ -3,10 +3,17 @@ import nodemailer from 'nodemailer';
 import { prisma } from './index';
 import { redis, connection } from './redis';
 
+<<<<<<< HEAD
+const emailQueue = new Queue('emails', { connection });
+
+export const emailWorker = new Worker(
+  'emails',
+=======
 export const emailQueue = new Queue("emails", { connection });
 
 export const emailWorker = new Worker(
   "emails",
+>>>>>>> b46b755a2014190d1224314469a8cfaccc036794
   async (job: Job) => {
     const { emailId } = job.data;
 
