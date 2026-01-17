@@ -1,18 +1,7 @@
 import { Worker, Job, Queue } from 'bullmq';
-import IORedis from 'ioredis';
 import nodemailer from 'nodemailer';
 import { prisma } from './index';
-
-const redisConnection = process.env.REDIS_URL || 'redis://localhost:6379';
-const redis = new IORedis(redisConnection);
-
-// Parse Redis URL for BullMQ connection
-const url = new URL(redisConnection);
-const connection = {
-  host: url.hostname,
-  port: parseInt(url.port),
-  password: url.password || undefined,
-};
+import { redis, connection } from './redis';
 
 const emailQueue = new Queue('email-queue', { connection });
 

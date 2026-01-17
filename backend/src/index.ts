@@ -3,8 +3,6 @@ import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import dotenv from 'dotenv';
-import Redis from 'ioredis';
-import { Queue } from 'bullmq';
 import authRoutes from './routes/auth';
 import emailRoutes from './routes/emails';
 import './worker'; // Start the worker

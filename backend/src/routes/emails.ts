@@ -1,7 +1,7 @@
 import express from 'express';
 import { prisma } from '../index';
 import { Queue } from 'bullmq';
-import IORedis from 'ioredis';
+import { connection } from '../redis';
 import multer from 'multer';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
@@ -18,8 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
-const redis = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
-const emailQueue = new Queue('email-queue', { connection: redis });
+const emailQueue = new Queue('email-queue', { connection });
 
 router.post('/schedule', upload.single('csvFile'), async (req, res) => {
   try {
