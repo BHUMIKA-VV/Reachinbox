@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  googleId   String   @unique
+  name       String
+  email      String   @unique
+  avatarUrl  String?
+  createdAt  DateTime @default(now())
+
+  senders Sender[]
+  emails  Email[]
+
+  @@map("users")
+}
+
+model Sender {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  fromEmail String
+  fromName  String
+  createdAt DateTime @default(now())
+
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emails Email[]
+
+  @@map("senders")
+}
+
+model Email {
+  id          String   @id @default(uuid())
+  userId      String
+  senderId    Int
+  toEmail     String
+  subject     String
+  body        String
+  scheduledAt DateTime
+  status      EmailStatus @default(scheduled)
+  sentAt      DateTime?
+  jobId       String?  @unique
+  createdAt   DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sender Sender @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("emails")
+}
+
+model EmailRateLimit {
+  senderId   Int
+  hourWindow String
+  count      Int     @default(0)
+
+  @@id([senderId, hourWindow])
+  @@map("email_rate_limits")
+}
+
+enum EmailStatus {
+  scheduled
+  sending
+  sent
+  failed
+}
