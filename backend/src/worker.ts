@@ -1,23 +1,12 @@
 import { Worker, Job, Queue } from 'bullmq';
-import IORedis from 'ioredis';
 import nodemailer from 'nodemailer';
 import { prisma } from './index';
+import { redis, connection } from './redis';
 
-const redisConnection = process.env.REDIS_URL || 'redis://localhost:6379';
-const redis = new IORedis(redisConnection);
+const emailQueue = new Queue('emails', { connection });
 
-// Parse Redis URL for BullMQ connection
-const url = new URL(redisConnection);
-const connection = {
-  host: url.hostname,
-  port: parseInt(url.port),
-  password: url.password || undefined,
-};
-
-const emailQueue = new Queue('email-queue', { connection });
-
-const worker = new Worker(
-  'email-queue',
+export const emailWorker = new Worker(
+  'emails',
   async (job: Job) => {
     const { emailId } = job.data;
 
@@ -112,11 +101,11 @@ const worker = new Worker(
   }
 );
 
-worker.on('completed', (job) => {
+emailWorker.on('completed', (job) => {
   console.log(`Job ${job.id} completed`);
 });
 
-worker.on('failed', (job, err) => {
+emailWorker.on('failed', (job, err) => {
   console.log(`Job ${job?.id} failed:`, err.message);
 });
 
