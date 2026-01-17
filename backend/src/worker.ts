@@ -6,7 +6,15 @@ import { prisma } from './index';
 const redisConnection = process.env.REDIS_URL || 'redis://localhost:6379';
 const redis = new IORedis(redisConnection);
 
-const emailQueue = new Queue('email-queue', { connection: redisConnection });
+// Parse Redis URL for BullMQ connection
+const url = new URL(redisConnection);
+const connection = {
+  host: url.hostname,
+  port: parseInt(url.port),
+  password: url.password || undefined,
+};
+
+const emailQueue = new Queue('email-queue', { connection });
 
 const worker = new Worker(
   'email-queue',
@@ -95,7 +103,7 @@ const worker = new Worker(
     }
   },
   {
-    connection: redisConnection,
+    connection,
     concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5')
   }
 );

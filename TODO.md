@@ -28,10 +28,10 @@
 - [x] Update README with deployment instructions
 - [x] Ensure all code is production-ready for Vercel and Render deployment
 - [x] Perform thorough end-to-end testing verification (code review completed, Docker not available on system)
-- [x] Update worker.ts to use REDIS_URL for deployment
-- [ ] Push code to private GitHub repository
-- [ ] Grant access to user Mitrajit
-- [ ] Deploy frontend to Vercel
-- [ ] Deploy backend to Render
-- [ ] Create demo video showing functionality
-- [ ] Submit assignment via form
+- [x] Update worker.ts to use REDIS_URL for deployment (already configured)
+- [ ] Push code to private GitHub repository (manual step)
+- [ ] Grant access to user Mitrajit (manual step)
+- [ ] Deploy frontend to Vercel (manual step - set NEXT_PUBLIC_API_URL to Render backend URL)
+- [ ] Deploy backend to Render (manual step - use build/start scripts, set env vars from .env.example)
+- [ ] Create demo video showing functionality (manual step)
+- [ ] Submit assignment via form (manual step)
