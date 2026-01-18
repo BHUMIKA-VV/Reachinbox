@@ -1,19 +1,12 @@
 import { Worker, Job, Queue } from 'bullmq';
 import nodemailer from 'nodemailer';
 import { prisma } from './index';
-import { redis, connection } from './redis';
+import { redis } from '../lib/redis';
 
-<<<<<<< HEAD
-const emailQueue = new Queue('emails', { connection });
-
-export const emailWorker = new Worker(
-  'emails',
-=======
-export const emailQueue = new Queue("emails", { connection });
+export const emailQueue = new Queue("emails", { connection: redis });
 
 export const emailWorker = new Worker(
   "emails",
->>>>>>> b46b755a2014190d1224314469a8cfaccc036794
   async (job: Job) => {
     const { emailId } = job.data;
 
@@ -99,7 +92,7 @@ export const emailWorker = new Worker(
     }
   },
   {
-    connection,
+    connection: redis,
     concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5'),
     limiter: {
       max: 1,
@@ -117,5 +110,3 @@ emailWorker.on('failed', (job, err) => {
 });
 
 console.log('Email worker started');
-
-export { emailQueue };

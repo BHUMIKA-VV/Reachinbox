@@ -1,2 +1,4 @@
-- [x] Update Reachinbox/backend/src/routes/emails.ts to use shared connection object
-- [x] Commit changes to GitHub
+- [x] Create backend/src/lib/redis.ts with shared Redis config
+- [x] Update backend/src/worker.ts to use shared redis connection
+- [x] Update backend/src/routes/emails.ts to import emailQueue from worker.ts
+- [x] Remove duplicate backend/src/redis.ts to ensure ONE shared config
