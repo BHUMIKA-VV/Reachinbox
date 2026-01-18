@@ -9,31 +9,33 @@ const passport_google_oauth20_1 = require("passport-google-oauth20");
 const index_1 = require("../index");
 const router = express_1.default.Router();
 // Passport Google Strategy
-passport_1.default.use(new passport_google_oauth20_1.Strategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5000'}/auth/google/callback`,
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        let user = await index_1.prisma.user.findUnique({
-            where: { googleId: profile.id },
-        });
-        if (!user) {
-            user = await index_1.prisma.user.create({
-                data: {
-                    googleId: profile.id,
-                    name: profile.displayName,
-                    email: profile.emails?.[0]?.value || '',
-                    avatarUrl: profile.photos?.[0]?.value,
-                },
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport_1.default.use(new passport_google_oauth20_1.Strategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: `${process.env.BACKEND_URL || 'http://localhost:5000'}/auth/google/callback`,
+    }, async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await index_1.prisma.user.findUnique({
+                where: { googleId: profile.id },
             });
+            if (!user) {
+                user = await index_1.prisma.user.create({
+                    data: {
+                        googleId: profile.id,
+                        name: profile.displayName,
+                        email: profile.emails?.[0]?.value || '',
+                        avatarUrl: profile.photos?.[0]?.value,
+                    },
+                });
+            }
+            done(null, user);
         }
-        done(null, user);
-    }
-    catch (error) {
-        done(error, false);
-    }
-}));
+        catch (error) {
+            done(error, false);
+        }
+    }));
+}
 passport_1.default.serializeUser((user, done) => {
     done(null, user.id);
 });

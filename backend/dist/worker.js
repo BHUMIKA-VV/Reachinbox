@@ -3,16 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.emailQueue = void 0;
+exports.emailWorker = exports.emailQueue = void 0;
 const bullmq_1 = require("bullmq");
-const ioredis_1 = __importDefault(require("ioredis"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const index_1 = require("./index");
-const redisConnection = { host: 'localhost', port: 6379 }; // Use object for connection
-const redis = new ioredis_1.default(redisConnection);
-const emailQueue = new bullmq_1.Queue('email-queue', { connection: redisConnection });
-exports.emailQueue = emailQueue;
-const worker = new bullmq_1.Worker('email-queue', async (job) => {
+const redis_1 = require("./lib/redis");
+exports.emailQueue = new bullmq_1.Queue("emails", { connection: redis_1.redis });
+exports.emailWorker = new bullmq_1.Worker("emails", async (job) => {
     const { emailId } = job.data;
     // Check DB status
     const email = await index_1.prisma.email.findUnique({
@@ -26,10 +23,10 @@ const worker = new bullmq_1.Worker('email-queue', async (job) => {
     // Check rate limit
     const hourWindow = new Date().toISOString().slice(0, 13).replace('T', '-'); // YYYY-MM-DD-HH
     const rateLimitKey = `rate:${email.senderId}:${hourWindow}`;
-    const currentCount = await redis.incr(rateLimitKey);
+    const currentCount = await redis_1.redis.incr(rateLimitKey);
     if (currentCount === 1) {
         // Set TTL to 2 hours
-        await redis.expire(rateLimitKey, 7200);
+        await redis_1.redis.expire(rateLimitKey, 7200);
     }
     const maxEmailsPerHour = job.data.hourlyLimit || parseInt(process.env.MAX_EMAILS_PER_HOUR_PER_SENDER || '200');
     if (currentCount > maxEmailsPerHour) {
@@ -38,7 +35,7 @@ const worker = new bullmq_1.Worker('email-queue', async (job) => {
         nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
         const delay = nextHour.getTime() - Date.now();
         // Re-add job with delay
-        await emailQueue.add('send-email', { emailId, delayMs: job.data.delayMs, hourlyLimit: job.data.hourlyLimit }, { delay });
+        await exports.emailQueue.add('send-email', { emailId, delayMs: job.data.delayMs, hourlyLimit: job.data.hourlyLimit }, { delay });
         console.log(`Rate limit exceeded for sender ${email.senderId}, re-queuing for ${nextHour.toISOString()}`);
         return;
     }
@@ -85,13 +82,17 @@ const worker = new bullmq_1.Worker('email-queue', async (job) => {
         throw error; // Let BullMQ handle retries
     }
 }, {
-    connection: redisConnection,
-    concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5')
+    connection: redis_1.redis,
+    concurrency: parseInt(process.env.WORKER_CONCURRENCY || '5'),
+    limiter: {
+        max: 1,
+        duration: parseInt(process.env.EMAIL_DELAY_MS || '2000')
+    }
 });
-worker.on('completed', (job) => {
+exports.emailWorker.on('completed', (job) => {
     console.log(`Job ${job.id} completed`);
 });
-worker.on('failed', (job, err) => {
+exports.emailWorker.on('failed', (job, err) => {
     console.log(`Job ${job?.id} failed:`, err.message);
 });
 console.log('Email worker started');

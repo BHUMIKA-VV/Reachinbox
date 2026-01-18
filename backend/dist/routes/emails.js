@@ -5,15 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const index_1 = require("../index");
-const bullmq_1 = require("bullmq");
-const ioredis_1 = __importDefault(require("ioredis"));
+const worker_1 = require("../worker");
 const multer_1 = __importDefault(require("multer"));
 const csv_parser_1 = __importDefault(require("csv-parser"));
 const stream_1 = require("stream");
 const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
 const router = express_1.default.Router();
-const redis = new ioredis_1.default(process.env.REDIS_URL || 'redis://localhost:6379');
-const emailQueue = new bullmq_1.Queue('email-queue', { connection: redis });
 router.post('/schedule', upload.single('csvFile'), async (req, res) => {
     try {
         const { senderId, subject, body, startTime, delayMs, hourlyLimit } = req.body;
@@ -69,7 +66,7 @@ router.post('/schedule', upload.single('csvFile'), async (req, res) => {
             });
             // Add to queue with delay
             const delay = Math.max(0, currentTime - Date.now());
-            const job = await emailQueue.add('send-email', {
+            const job = await worker_1.emailQueue.add('send-email', {
                 emailId: email.id,
                 delayMs: delayBetween,
                 hourlyLimit: maxPerHour
