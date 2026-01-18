@@ -1,8 +1,10 @@
 import IORedis from "ioredis";
 
-export const redis = new IORedis(process.env.REDIS_URL!, {
+const redis = new IORedis(process.env.REDIS_URL!, {
   tls: {
     rejectUnauthorized: false
   },
   maxRetriesPerRequest: null,
 });
+
+export default redis;
