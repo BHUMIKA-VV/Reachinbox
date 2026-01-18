@@ -1,7 +1,7 @@
 import { Worker, Job, Queue } from 'bullmq';
 import nodemailer from 'nodemailer';
 import { prisma } from './index';
-import { redis } from '../lib/redis';
+import { redis } from './lib/redis';
 
 export const emailQueue = new Queue("emails", { connection: redis });
 
