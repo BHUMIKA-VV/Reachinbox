@@ -1,3 +1,3 @@
-- [x] Update backend/prisma/schema.prisma to add binaryTargets
-- [x] Regenerate Prisma client: cd backend && npx prisma generate
-- [x] Commit changes: git add backend/prisma/schema.prisma node_modules/.prisma && git commit -m "fix: add debian-openssl prisma binary for Render" && git push
+- [ ] Remove tls block from backend/src/lib/redis.ts
+- [ ] Remove tls block from Reachinbox/backend/src/lib/redis.ts
+- [ ] Remove tls blocks from Reachinbox/backend/src/redis.ts (redis export and connection object)
