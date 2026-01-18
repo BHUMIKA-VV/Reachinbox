@@ -1,3 +1,4 @@
-import IORedis from "ioredis";
-export declare const redis: IORedis;
+import Redis from "ioredis";
+declare const redis: Redis;
+export default redis;
 //# sourceMappingURL=redis.d.ts.map
