@@ -1,7 +1,3 @@
-- [x] Create backend/src/lib/redis.ts with shared Redis config
-- [x] Update backend/src/worker.ts to use shared redis connection
-- [x] Update backend/src/routes/emails.ts to import emailQueue from worker.ts
-- [x] Remove duplicate backend/src/redis.ts to ensure ONE shared config
-- [x] Update backend/src/lib/redis.ts to exact task code (import Redis, export default, REDIS_URL check, error handler)
-- [x] Change worker.ts import to default import
-- [x] Remove dist/ directory to clear compiled junk
+- [x] Update backend/prisma/schema.prisma to add binaryTargets
+- [x] Regenerate Prisma client: cd backend && npx prisma generate
+- [x] Commit changes: git add backend/prisma/schema.prisma node_modules/.prisma && git commit -m "fix: add debian-openssl prisma binary for Render" && git push

@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const index_1 = require("../index");
-const worker_1 = require("../worker");
+const emailQueue_1 = require("../queues/emailQueue");
 const multer_1 = __importDefault(require("multer"));
 const csv_parser_1 = __importDefault(require("csv-parser"));
 const stream_1 = require("stream");
@@ -66,7 +66,7 @@ router.post('/schedule', upload.single('csvFile'), async (req, res) => {
             });
             // Add to queue with delay
             const delay = Math.max(0, currentTime - Date.now());
-            const job = await worker_1.emailQueue.add('send-email', {
+            const job = await emailQueue_1.emailQueue.add('send-email', {
                 emailId: email.id,
                 delayMs: delayBetween,
                 hourlyLimit: maxPerHour
