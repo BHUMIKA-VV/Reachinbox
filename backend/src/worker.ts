@@ -1,5 +1,7 @@
-import { Worker } from "bullmq";
+import { Worker, Queue } from "bullmq";
 import redis from "./lib/redis";
+
+export const emailQueue = new Queue("email-queue", { connection: redis });
 
 export const emailWorker = new Worker(
   "email-queue",
