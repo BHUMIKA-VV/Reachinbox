@@ -1,13 +1,13 @@
-import Redis from "ioredis";
+import IORedis from "ioredis";
 
-if (!process.env.REDIS_URL) {
-  throw new Error("REDIS_URL is not set");
-}
+const redis = new IORedis(process.env.REDIS_URL as string);
 
-const redis = new Redis(process.env.REDIS_URL);
+redis.on("connect", () => {
+  console.log("✅ Redis connected");
+});
 
 redis.on("error", (err) => {
-  console.error("Redis error:", err);
+  console.error("❌ Redis error:", err);
 });
 
 export default redis;
