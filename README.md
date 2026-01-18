@@ -57,7 +57,7 @@ Create `.env` file in the `backend` directory:
 DATABASE_URL=postgresql://postgres:password@localhost:5432/reachinbox
 
 # Redis
-REDIS_URL=redis://localhost:6379
+REDIS_URL=your_redis_connection_string
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id

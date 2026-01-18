@@ -1,8 +1,18 @@
-import IORedis from "ioredis";
+import Redis from "ioredis";
 
-export const redis = new IORedis(process.env.REDIS_URL!, {
+if (!process.env.REDIS_URL) {
+  throw new Error("REDIS_URL is not set");
+}
+
+const redis = new Redis(process.env.REDIS_URL, {
   tls: {
     rejectUnauthorized: false
   },
-  maxRetriesPerRequest: null,
+  maxRetriesPerRequest: null
 });
+
+redis.on("error", (err) => {
+  console.error("Redis error:", err);
+});
+
+export default redis;
