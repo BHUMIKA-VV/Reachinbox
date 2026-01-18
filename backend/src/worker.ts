@@ -1,13 +1,13 @@
 import { Worker } from "bullmq";
 import redis from "./lib/redis";
 
-export const emailWorker = new Worker(
-  "email-queue",
+new Worker(
+  "emailQueue",
   async (job) => {
-    console.log("Processing email job:", job.id, job.data);
+    // process email job here
+    console.log("Processing email job", job.data);
   },
   {
     connection: redis,
-    concurrency: Number(process.env.WORKER_CONCURRENCY || 5),
   }
 );

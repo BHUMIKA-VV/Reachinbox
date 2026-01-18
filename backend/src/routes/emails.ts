@@ -1,6 +1,6 @@
 import express from 'express';
 import { prisma } from '../index';
-import { emailQueue } from '../worker';
+import { emailQueue } from '../queues/emailQueue';
 import multer from 'multer';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
