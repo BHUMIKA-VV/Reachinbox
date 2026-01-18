@@ -1,12 +1,10 @@
-import { Worker, Queue } from "bullmq";
+import { Worker } from "bullmq";
 import redis from "./lib/redis";
-
-export const emailQueue = new Queue("email-queue", { connection: redis });
 
 export const emailWorker = new Worker(
   "email-queue",
   async (job) => {
-    console.log("Processing job:", job.id);
+    console.log("Processing email job:", job.id, job.data);
   },
   {
     connection: redis,
