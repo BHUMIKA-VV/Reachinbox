@@ -1,7 +1,6 @@
 import express from 'express';
 import { prisma } from '../index';
-import { Queue } from 'bullmq';
-import { connection } from '../redis';
+import { emailQueue } from '../worker';
 import multer from 'multer';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
@@ -17,8 +16,6 @@ declare global {
 const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
-
-const emailQueue = new Queue('emails', { connection });
 
 router.post('/schedule', upload.single('csvFile'), async (req, res) => {
   try {
