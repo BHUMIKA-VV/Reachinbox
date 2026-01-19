@@ -11,14 +11,17 @@ dotenv.config();
 
 const app = express();
 export const prisma = new PrismaClient();
-
+app.set('trust proxy', 1);
 // Middleware
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET!,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true in production with HTTPS
+  cookie: {
+    secure: true,        // REQUIRED on HTTPS
+    sameSite: 'none'     // REQUIRED for cross-site cookies
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
