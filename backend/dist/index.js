@@ -11,17 +11,20 @@ const passport_1 = __importDefault(require("passport"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const emails_1 = __importDefault(require("./routes/emails"));
-require("./worker"); // Start the worker
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 exports.prisma = new client_1.PrismaClient();
+app.set('trust proxy', 1);
 // Middleware
 app.use(express_1.default.json());
 app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true in production with HTTPS
+    cookie: {
+        secure: true, // REQUIRED on HTTPS
+        sameSite: 'none' // REQUIRED for cross-site cookies
+    }
 }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());

@@ -5,7 +5,6 @@ import passport from 'passport';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import emailRoutes from './routes/emails';
-import './worker'; // Start the worker
 
 dotenv.config();
 
